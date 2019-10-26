@@ -9,7 +9,8 @@ import (
 func evaluateFCRDNS(domain string, res *Results) error {
 	_, mxs, err := extR.AuthLookupMX(context.Background(), domain)
 	if err != nil {
-		return fmt.Errorf("lookup mx %v: %w", domain, err)
+		res.fcrdns = LevelMissing
+		res.fcrdnsDesc = fmt.Sprintf("lookup mx %v: %v", domain, err)
 	}
 
 	allUnmatched := true
@@ -20,6 +21,8 @@ func evaluateFCRDNS(domain string, res *Results) error {
 			res.fcrdns = to
 		}
 	}
+
+	res.fcrdns = LevelSecure
 
 	for _, mx := range mxs {
 		_, addrs, err := extR.AuthLookupHost(context.Background(), mx.Host)

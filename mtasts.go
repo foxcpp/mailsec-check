@@ -16,10 +16,16 @@ func evaluateMTASTS(domain string, res *Results) error {
 		// Probably NXDOMAIN.
 		// TODO: check for NXDOMAIN.
 		res.mtasts = LevelMissing
-		res.mtastsDesc = "no DNS record found;"
+		res.mtastsDesc = "no policy;"
 		return nil
 	}
 	txt := strings.Join(txts, "")
+
+	if strings.TrimSpace(txt) == "" {
+		res.mtasts = LevelMissing
+		res.mtastsDesc = "no policy;"
+		return nil
+	}
 
 	levelDown := func(to Level) {
 		if res.mtasts > to {
