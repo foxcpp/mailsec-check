@@ -3,6 +3,8 @@ github.com/emersion/go-sasl v0.0.0-20190704090222-36b50694675c h1:Spm8jy+jWYG/Dn
 github.com/emersion/go-sasl v0.0.0-20190704090222-36b50694675c/go.mod h1:G/dpzLu16WtQpBfQ/z3LYiYJn3ZhKSGWn83fyoyQe/k=
 github.com/emersion/go-smtp v0.11.2 h1:5PO2Kwsx+HXuytntCfMvcworC/iq45TPGkwjnaBZFSg=
 github.com/emersion/go-smtp v0.11.2/go.mod h1:byi9Y32SuKwjTJt9DO2tTWYjtF3lEh154tE1AcaJQSY=
+github.com/foxcpp/go-msgauth v0.2.1-0.20191025182424-14b58d8c56d2 h1:B+Nllq9ADkIYPIutsO6T100XvNGnwNMASBCPdv3eGsU=
+github.com/foxcpp/go-msgauth v0.2.1-0.20191025182424-14b58d8c56d2/go.mod h1:7r9HUSXL1dq+KK7Xqg0JlyBxNFGf5+JouRvSz4wBZCQ=
 github.com/foxcpp/maddy v0.0.1 h1:q3myWGp+Vcbv9ZhecItpALwF+8Q6AyJnsM00tXskOoY=
 github.com/miekg/dns v1.1.22 h1:Jm64b3bO9kP43ddLjL2EY3Io6bmy1qGb9Xxz6TqS6rc=
 github.com/miekg/dns v1.1.22/go.mod h1:bPDLeHnStXmXAq1m/Ch/hvfNHr14JKNPMBo3VZKjuso=

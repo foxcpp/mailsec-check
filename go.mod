@@ -9,4 +9,4 @@ require (
 	github.com/mitchellh/colorstring v0.0.0-20190213212951-d06e56a500db
 )
 
-replace github.com/emersion/go-msgauth => /home/foxcpp/Projects/go-msgauth
+replace github.com/emersion/go-msgauth => github.com/foxcpp/go-msgauth v0.2.1-0.20191025182424-14b58d8c56d2
