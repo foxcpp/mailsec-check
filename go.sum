@@ -1,4 +1,6 @@
 github.com/emersion/go-milter v0.0.0-20190311184326-c3095a41a6fe/go.mod h1:aEaq7U51ARlk+2UeXTtdrDYeYWAUn/QjEwWzs7lD8OU=
+github.com/emersion/go-msgauth v0.3.2-0.20191028231513-55b75676976c h1:0as6ct8PVWrlCofyWPh8o/fNRr6/DPbjkBicSG+3ZQI=
+github.com/emersion/go-msgauth v0.3.2-0.20191028231513-55b75676976c/go.mod h1:7r9HUSXL1dq+KK7Xqg0JlyBxNFGf5+JouRvSz4wBZCQ=
 github.com/emersion/go-sasl v0.0.0-20190704090222-36b50694675c h1:Spm8jy+jWYG/Dn6ygbq/LBW/6M27kg59GK+FkKjexuw=
 github.com/emersion/go-sasl v0.0.0-20190704090222-36b50694675c/go.mod h1:G/dpzLu16WtQpBfQ/z3LYiYJn3ZhKSGWn83fyoyQe/k=
 github.com/emersion/go-smtp v0.11.2 h1:5PO2Kwsx+HXuytntCfMvcworC/iq45TPGkwjnaBZFSg=
