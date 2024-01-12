@@ -5,6 +5,7 @@ import (
 	"errors"
 	"strings"
 
+	"github.com/foxcpp/mailsec-check/dns"
 	"github.com/foxcpp/mailsec-check/mtasts"
 )
 
@@ -12,12 +13,14 @@ func evaluateMTASTS(domain string, res *Results) error {
 	res.mtasts = LevelSecure
 
 	_, txts, err := extR.AuthLookupTXT(context.Background(), "_mta-sts."+domain)
-	if err != nil {
-		// Probably NXDOMAIN.
-		// TODO: check for NXDOMAIN.
+	if err == dns.ErrNxDomain {
 		res.mtasts = LevelMissing
-		res.mtastsDesc = "no policy;"
+		res.mtastsDesc = "no _mta-sts subdomain;"
 		return nil
+	} else if err != nil {
+		res.mtasts = LevelInvalid
+		res.mtastsDesc = "domain query error: " + err.Error() + ";"
+		return err
 	}
 	txt := strings.Join(txts, "")
 

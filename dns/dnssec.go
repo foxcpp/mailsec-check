@@ -2,12 +2,15 @@ package dns
 
 import (
 	"context"
+	"errors"
 	"net"
 	"strings"
 	"time"
 
 	"github.com/miekg/dns"
 )
+
+var ErrNxDomain = errors.New("NXDOMAIN")
 
 // ExtResolver is a convenience wrapper for miekg/dns library that provides
 // access to certain low-level functionality (notably, AD flag in responses,
@@ -131,6 +134,14 @@ func (e ExtResolver) AuthLookupTXT(ctx context.Context, name string) (ad bool, r
 	resp, err := e.exchange(ctx, msg)
 	if err != nil {
 		return false, nil, err
+	}
+
+	if resp.MsgHdr.Rcode != dns.RcodeSuccess {
+		if resp.MsgHdr.Rcode == dns.RcodeNameError {
+			return false, nil, ErrNxDomain
+		} else {
+			return false, nil, errors.New(dns.RcodeToString[resp.MsgHdr.Rcode])
+		}
 	}
 
 	ad = resp.AuthenticatedData
