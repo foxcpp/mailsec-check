@@ -46,6 +46,9 @@ func evaluateDANE(domain string, res *Results) error {
 			res.daneDesc += fmt.Sprintf("no record for %s; ", mx.Host)
 			continue
 		}
+		for _, rec := range recs {
+			res.daneRec += rec.String() + "\n"
+		}
 
 		if !(*active) {
 			continue

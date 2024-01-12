@@ -40,7 +40,8 @@ func evaluateMTASTS(domain string, res *Results) error {
 		return nil
 	}
 
-	policy, err := mtasts.DownloadPolicy(domain)
+	policy, rawContents, err := mtasts.DownloadPolicy(domain)
+	res.mtastsRec = rawContents
 	if err != nil {
 		res.mtasts = LevelInvalid
 		res.mtastsDesc = "policy fetch error: " + err.Error() + ";"

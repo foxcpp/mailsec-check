@@ -4,6 +4,7 @@ package mtasts
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"strconv"
@@ -80,8 +81,14 @@ type Policy struct {
 	MX     []string
 }
 
-func readPolicy(contents io.Reader) (*Policy, error) {
-	scnr := bufio.NewScanner(contents)
+func readPolicy(contents io.Reader) (*Policy, string, error) {
+	contentsBytes, err := io.ReadAll(contents)
+	if err != nil {
+		return nil, "", err
+	}
+	rawContents := string(contentsBytes)
+	contentsReader := bytes.NewReader(contentsBytes)
+	scnr := bufio.NewScanner(contentsReader)
 	policy := Policy{}
 
 	present := make(map[string]struct{})
@@ -89,7 +96,7 @@ func readPolicy(contents io.Reader) (*Policy, error) {
 	for scnr.Scan() {
 		fieldParts := strings.Split(scnr.Text(), ":")
 		if len(fieldParts) != 2 {
-			return nil, MalformedPolicyError{Desc: "invalid field: " + scnr.Text()}
+			return nil, rawContents, MalformedPolicyError{Desc: "invalid field: " + scnr.Text()}
 		}
 
 		// Arbitrary whitespace after colon:
@@ -99,20 +106,20 @@ func readPolicy(contents io.Reader) (*Policy, error) {
 		switch fieldName {
 		case "version":
 			if fieldValue != "STSv1" {
-				return nil, MalformedPolicyError{Desc: "unsupported policy version: " + fieldValue}
+				return nil, rawContents, MalformedPolicyError{Desc: "unsupported policy version: " + fieldValue}
 			}
 		case "mode":
 			switch Mode(fieldValue) {
 			case ModeEnforce, ModeTesting, ModeNone:
 				policy.Mode = Mode(fieldValue)
 			default:
-				return nil, MalformedPolicyError{Desc: "invalid mode value: " + fieldValue}
+				return nil, rawContents, MalformedPolicyError{Desc: "invalid mode value: " + fieldValue}
 			}
 		case "max_age":
 			var err error
 			policy.MaxAge, err = strconv.Atoi(fieldValue)
 			if err != nil {
-				return nil, MalformedPolicyError{Desc: "invalid max_age value: " + err.Error()}
+				return nil, rawContents, MalformedPolicyError{Desc: "invalid max_age value: " + err.Error()}
 			}
 		case "mx":
 			policy.MX = append(policy.MX, fieldValue)
@@ -120,24 +127,24 @@ func readPolicy(contents io.Reader) (*Policy, error) {
 		present[fieldName] = struct{}{}
 	}
 	if err := scnr.Err(); err != nil {
-		return nil, err
+		return nil, rawContents, err
 	}
 
 	if _, ok := present["version"]; !ok {
-		return nil, MalformedPolicyError{Desc: "version field required"}
+		return nil, rawContents, MalformedPolicyError{Desc: "version field required"}
 	}
 	if _, ok := present["mode"]; !ok {
-		return nil, MalformedPolicyError{Desc: "mode field required"}
+		return nil, rawContents, MalformedPolicyError{Desc: "mode field required"}
 	}
 	if _, ok := present["max_age"]; !ok {
-		return nil, MalformedPolicyError{Desc: "max_age field required"}
+		return nil, rawContents, MalformedPolicyError{Desc: "max_age field required"}
 	}
 
 	if policy.Mode != ModeNone && len(policy.MX) == 0 {
-		return nil, MalformedPolicyError{Desc: "at least one mx field required when mode is not none"}
+		return nil, rawContents, MalformedPolicyError{Desc: "at least one mx field required when mode is not none"}
 	}
 
-	return &policy, nil
+	return &policy, rawContents, nil
 }
 
 func (p Policy) Match(mx string) bool {
