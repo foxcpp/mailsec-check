@@ -199,9 +199,9 @@ func NewExtResolver() (*ExtResolver, error) {
 		return nil, err
 	}
 	cl := new(dns.Client)
-	cl.Dialer = &net.Dialer{
-		Timeout: 15 * time.Second,
-	}
+	// Set the overall DNS timeout(read, write, connect)to 15secs, this is
+	// high, but we want answers, not speed.
+	cl.Timeout = 15 * time.Second
 	return &ExtResolver{
 		cl:  cl,
 		cfg: cfg,
