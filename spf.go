@@ -3,28 +3,39 @@ package main
 import (
 	"context"
 	"strings"
+
+	"github.com/foxcpp/mailsec-check/dns"
 )
 
 func evaluateSPF(domain string, res *Results) error {
 	res.spf = LevelSecure
 
 	ad, txts, err := extR.AuthLookupTXT(context.Background(), domain)
-	if err != nil {
-		// Probably NXDOMAIN.
-		// TODO: check for NXDOMAIN.
+	if err == dns.ErrNxDomain {
 		res.spf = LevelMissing
-		res.spfDesc = "no policy;"
+		res.spfDesc = "no domain;"
 		return nil
+	} else if err != nil {
+		res.spf = LevelInvalid
+		res.spfDesc = "domain query error: " + err.Error() + ";"
+		return err
 	}
 
-	res.spfDesc += "present; "
-
+	spfRecPresent := false
 	for _, txt := range txts {
 		if strings.HasPrefix(txt, "v=spf1") {
+			spfRecPresent = true
+			res.spfDesc += "present; "
 			if err := evalSPFRecord(txt, res); err != nil {
 				return err
 			}
 		}
+	}
+
+	if !spfRecPresent {
+		res.spf = LevelMissing
+		res.spfDesc += "no policy;"
+		return nil
 	}
 
 	if res.spfDesc == "present; " {

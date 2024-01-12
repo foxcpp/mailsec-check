@@ -102,12 +102,14 @@ func evaluateDNSSEC(domain string, res *Results) error {
 
 func evaluateDKIM(domain string, res *Results) error {
 	ad, _, err := extR.AuthLookupTXT(context.Background(), "_domainkey."+domain)
-	if err != nil {
-		// Probably NXDOMAIN.
-		// TODO: check for NXDOMAIN.
+	if err == dns.ErrNxDomain {
 		res.dkim = LevelMissing
-		res.dkimDesc = "no _domainkey subdomain"
+		res.dkimDesc = "no _domainkey subdomain;"
 		return nil
+	} else if err != nil {
+		res.dkim = LevelInvalid
+		res.dkimDesc = "domain query error: " + err.Error() + ";"
+		return err
 	}
 
 	res.dkim = LevelSecure
@@ -127,12 +129,14 @@ func evaluateDMARC(domain string, res *Results) error {
 	res.dmarc = LevelSecure
 
 	ad, txts, err := extR.AuthLookupTXT(context.Background(), "_dmarc."+domain)
-	if err != nil {
-		// Probably NXDOMAIN.
-		// TODO: check for NXDOMAIN.
+	if err == dns.ErrNxDomain {
 		res.dmarc = LevelMissing
-		res.dmarcDesc = "no policy;"
+		res.dmarcDesc = "no _dmarc subdomain;"
 		return nil
+	} else if err != nil {
+		res.dmarc = LevelInvalid
+		res.dmarcDesc = "domain query error: " + err.Error() + ";"
+		return err
 	}
 
 	txt := strings.Join(txts, "")
