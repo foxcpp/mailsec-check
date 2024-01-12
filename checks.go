@@ -28,15 +28,19 @@ type Results struct {
 
 	spf     Level
 	spfDesc string
+	spfRec  string
 
 	dmarc     Level
 	dmarcDesc string
+	dmarcRec  string
 
 	mtasts     Level
 	mtastsDesc string
+	mtastsRec  string
 
 	dane     Level
 	daneDesc string
+	daneRec  string
 
 	dnssecMX     Level
 	dnssecMXDesc string
@@ -132,6 +136,7 @@ func evaluateDMARC(domain string, res *Results) error {
 	}
 
 	txt := strings.Join(txts, "")
+	res.dmarcRec = txt
 	rec, err := dmarc.Parse(txt)
 	if err != nil {
 		res.dmarc = LevelInvalid

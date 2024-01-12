@@ -1,20 +1,23 @@
 package main
 
 import (
+	"bufio"
 	"flag"
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/foxcpp/mailsec-check/dns"
 	"github.com/mitchellh/colorstring"
 )
 
 var (
-	active = flag.Bool("active", false, "Do some tests that require making connections to the SMTP servers")
+	active   = flag.Bool("active", false, "Do some tests that require making connections to the SMTP servers")
+	protocol = flag.Bool("protocol", false, "Display protocol records")
 )
 
-func printStatus(level Level, name, desc string) {
+func printStatus(level Level, name, desc, record string) {
 	var color, mark string
 	switch level {
 	case LevelUnknown:
@@ -36,6 +39,16 @@ func printStatus(level Level, name, desc string) {
 	}
 
 	colorstring.Println(fmt.Sprintf("[%s%s[reset]] %s[bold]%s:[reset] \t %s", color, mark, color, name, desc))
+	if *protocol && record != "" {
+		colorstring.Println(fmt.Sprintf("    %s%s[reset]", "[blue]", "Record:"))
+		scanner := bufio.NewScanner(strings.NewReader(record))
+		for scanner.Scan() {
+			fmt.Printf("\t%s\n", scanner.Text())
+		}
+		if err := scanner.Err(); err != nil {
+			fmt.Fprintln(os.Stderr, "Error reading record string: ", err)
+		}
+	}
 }
 
 func main() {
@@ -63,17 +76,17 @@ func main() {
 	}
 
 	colorstring.Println("[bold]-- Source forgery protection[reset]")
-	printStatus(res.dkim, "DKIM", res.dkimDesc)
-	printStatus(res.spf, "SPF", res.spfDesc)
-	printStatus(res.dmarc, "DMARC", res.dmarcDesc)
+	printStatus(res.dkim, "DKIM", res.dkimDesc, "")
+	printStatus(res.spf, "SPF", res.spfDesc, res.spfRec)
+	printStatus(res.dmarc, "DMARC", res.dmarcDesc, res.dmarcRec)
 	fmt.Println()
 
 	colorstring.Println("[bold]-- TLS enforcement[reset]")
-	printStatus(res.mtasts, "MTA-STS", res.mtastsDesc)
-	printStatus(res.dane, "DANE", res.daneDesc)
+	printStatus(res.mtasts, "MTA-STS", res.mtastsDesc, res.mtastsRec)
+	printStatus(res.dane, "DANE", res.daneDesc, res.daneRec)
 	fmt.Println()
 
 	colorstring.Println("[bold]-- DNS consistency[reset]")
-	printStatus(res.fcrdns, "FCrDNS", res.fcrdnsDesc)
-	printStatus(res.dnssecMX, "DNSSEC", res.dnssecMXDesc)
+	printStatus(res.fcrdns, "FCrDNS", res.fcrdnsDesc, "")
+	printStatus(res.dnssecMX, "DNSSEC", res.dnssecMXDesc, "")
 }

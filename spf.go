@@ -42,6 +42,7 @@ func evaluateSPF(domain string, res *Results) error {
 }
 
 func evalSPFRecord(txt string, res *Results) error {
+	res.spfRec = txt
 	parts := strings.Split(txt, " ")
 
 	if len(parts) == 0 {
