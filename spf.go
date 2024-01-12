@@ -35,6 +35,7 @@ func evaluateSPF(domain string, res *Results) error {
 		res.spf = LevelInsecure
 		res.spfDesc += "no DNSSEC; "
 	} else {
+		res.spf = LevelSecure
 		res.spfDesc += "DNSSEC-signed; "
 	}
 
